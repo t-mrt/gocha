@@ -2,8 +2,21 @@ package gocha
 
 import (
 	"regexp"
+	"regexp/syntax"
 	"testing"
 )
+
+func TestNew(t *testing.T) {
+
+	pattern := `[a-z`
+
+	err, _ := New(pattern)
+	_, want := syntax.Parse(pattern, syntax.Perl)
+
+	if err.Error() != want.Error() {
+		t.Errorf("%v", err.Error())
+	}
+}
 
 func TestGen(t *testing.T) {
 
