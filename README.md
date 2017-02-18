@@ -1,4 +1,4 @@
-gocha
+gocha [![Build Status](https://travis-ci.org/t-mrt/gocha.svg?branch=master)](https://travis-ci.org/t-mrt/gocha)
 =====
 
 NAME
