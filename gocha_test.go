@@ -95,3 +95,10 @@ func TestRandFromRange(t *testing.T) {
 		t.Errorf("result:%v must 1 or 2", result)
 	}
 }
+
+func BenchmarkGen(b *testing.B) {
+	for count := 0; count < 100; count++ {
+		_, g := New(`.{1000}`)
+		g.Gen()
+	}
+}
