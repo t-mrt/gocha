@@ -138,22 +138,24 @@ type intRange struct {
 
 func randFromRange(rs []intRange) int {
 
-	a := []int{}
+	overallLen := 0
 
 	for _, r := range rs {
-		l := true
-		x := r.a
-		b := r.b
-		for l {
-			a = append(a, x)
-			if b == x {
-				l = false
-			}
-			x = x + 1
-		}
+		overallLen = overallLen + (r.b - r.a + 1)
 	}
 	rand.Seed(time.Now().UnixNano())
-	i := rand.Intn(len(a))
+	index := rand.Intn(overallLen)
+	var result int
+	for _, r := range rs {
 
-	return a[i]
+		if (r.b - r.a) >= index {
+			rand.Seed(time.Now().UnixNano())
+			result = rand.Intn(r.b-r.a+1) + r.a
+			break
+		}
+
+		index = index - (r.b - r.a + 1)
+	}
+
+	return result
 }

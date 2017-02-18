@@ -60,3 +60,25 @@ func TestGen(t *testing.T) {
 		t.Errorf("null regexp")
 	}
 }
+
+var RandFromRange = randFromRange
+
+func TestRandFromRange(t *testing.T) {
+	rs := []intRange{}
+	r1 := intRange{
+		a: 1,
+		b: 2,
+	}
+
+	r2 := intRange{
+		a: 10,
+		b: 11,
+	}
+
+	rs = append(rs, r1)
+	rs = append(rs, r2)
+
+	if result := randFromRange(rs); (result != 1) && (result != 2) && (result != 10) && (result != 11) {
+		t.Errorf("result:%v must 1 or 2", result)
+	}
+}
