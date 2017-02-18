@@ -1,10 +1,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
+
+	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/t-mrt/gocha"
 )
@@ -21,22 +22,22 @@ type CLI struct {
 
 func (c *CLI) Run(args []string) int {
 
-	var n int
-	var p string
+	var pattern = kingpin.Arg("pattern", "Regular expression").Required().String()
+	var num = kingpin.Flag("number-of-lines", "Number of lines").Short('n').Int()
+	kingpin.Parse()
 
-	flags := flag.NewFlagSet("gocha", flag.ContinueOnError)
-	flags.SetOutput(c.errStream)
+	err, g := gocha.New(*pattern)
 
-	flag.IntVar(&n, "n", 1, "number of lines")
-	flag.StringVar(&p, "p", "", "regexp pattern")
-	flag.Parse()
-
-	err, g := gocha.New(p)
 	if err != nil {
+		fmt.Fprintln(c.outStream, "gocha: error: Invalid regular expression")
 		return ExitCodeError
 	}
 
-	for i := 0; i < n; i++ {
+	if *num <= 0 {
+		*num = 1
+	}
+
+	for i := 0; i < *num; i++ {
 		fmt.Fprintln(c.outStream, g.Gen())
 	}
 
