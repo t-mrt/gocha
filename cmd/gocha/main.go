@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/t-mrt/gocha"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
