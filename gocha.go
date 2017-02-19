@@ -16,6 +16,8 @@ type Gocha interface {
 
 func New(pattern string) (error, Gocha) {
 
+	rand.Seed(time.Now().UnixNano())
+
 	exp, err := syntax.Parse(pattern, syntax.Perl)
 	if err != nil {
 		return err, nil
@@ -53,10 +55,7 @@ func (g gocha) Gen() string {
 
 		case syntax.InstAlt:
 
-			rand.Seed(time.Now().UnixNano())
-			i := rand.Intn(10)
-
-			if i%2 == 1 {
+			if i := rand.Intn(2); i%2 == 1 {
 				pc = prog.Inst[pc].Out
 			} else {
 				pc = prog.Inst[pc].Arg
@@ -143,13 +142,11 @@ func randFromRange(rs []intRange) int {
 	for _, r := range rs {
 		overallLen = overallLen + (r.b - r.a + 1)
 	}
-	rand.Seed(time.Now().UnixNano())
 	index := rand.Intn(overallLen)
 	var result int
 	for _, r := range rs {
 
 		if (r.b - r.a) >= index {
-			rand.Seed(time.Now().UnixNano())
 			result = rand.Intn(r.b-r.a+1) + r.a
 			break
 		}
