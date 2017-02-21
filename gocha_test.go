@@ -97,8 +97,19 @@ func TestRandFromRange(t *testing.T) {
 }
 
 func BenchmarkGen(b *testing.B) {
-	for count := 0; count < 100; count++ {
-		_, g := New(`.{1000}`)
-		g.Gen()
+
+	strings := make([]string, 5000)
+
+	for count := 0; count < 5000; count++ {
+		_, g := New(`[a-zA-Z]{1000}`)
+		strings[count] = g.Gen()
 	}
+
+}
+
+func BenchmarkGenN(b *testing.B) {
+
+	_, g := New(`[a-zA-Z]{1000}`)
+	g.GenN(5000)
+
 }

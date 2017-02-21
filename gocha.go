@@ -12,6 +12,7 @@ type gocha struct {
 
 type Gocha interface {
 	Gen() string
+	GenN(int) []string
 }
 
 func New(pattern string) (error, Gocha) {
@@ -35,8 +36,19 @@ func New(pattern string) (error, Gocha) {
 	return nil, g
 }
 
-func (g gocha) Gen() string {
+func (g gocha) GenN(n int) []string {
 
+	strings := make([]string, n)
+
+	for i := 0; i < n; i++ {
+
+		strings[i] = g.Gen()
+	}
+
+	return strings
+}
+
+func (g gocha) Gen() string {
 	prog := g.prog
 	pc := uint32(prog.Start)
 	result := []rune{}
