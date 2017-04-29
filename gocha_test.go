@@ -97,7 +97,7 @@ func TestRandFromRange(t *testing.T) {
 }
 
 func BenchmarkGen(b *testing.B) {
-	for count := 0; count < 100; count++ {
+	for i := 0; i < b.N; i++ {
 		_, g := New(`.{1000}`)
 		g.Gen()
 	}
