@@ -1,6 +1,7 @@
 package gocha
 
 import (
+	"math/rand"
 	"regexp"
 	"regexp/syntax"
 	"testing"
@@ -8,14 +9,27 @@ import (
 
 func TestNew(t *testing.T) {
 
-	pattern := `[a-z`
+	t.Run("New (error)", func(t *testing.T) {
+		pattern := `[a-z`
 
-	err, _ := New(pattern)
-	_, want := syntax.Parse(pattern, syntax.Perl)
+		err, _ := New(pattern)
+		_, want := syntax.Parse(pattern, syntax.Perl)
 
-	if err.Error() != want.Error() {
-		t.Errorf("%v", err.Error())
-	}
+		if err.Error() != want.Error() {
+			t.Errorf("%v", err.Error())
+		}
+	})
+
+	t.Run("New with options", func(t *testing.T) {
+		pattern := `[a-z]`
+		r := rand.New(rand.NewSource(1))
+
+		err, _ := New(pattern, Rand(r))
+
+		if err != nil {
+			t.Errorf("%v", err.Error())
+		}
+	})
 }
 
 func TestGen(t *testing.T) {
@@ -72,11 +86,25 @@ func TestGen(t *testing.T) {
 	if m, _ := regexp.MatchString(`\A\z`, s); !m {
 		t.Errorf("null regexp")
 	}
+
+	t.Run("fixed seed", func(t *testing.T) {
+		r := rand.New(rand.NewSource(1))
+		_, g := New(`[a-z]{10}`, Rand(r))
+		if s := g.Gen(); s != "vbgacrjwtc" {
+			t.Errorf("%v must be vbgacrjwtc", s)
+		}
+		if s := g.Gen(); s != "cahkfapsfc" {
+			t.Errorf("%v must be cahkfapsfc", s)
+		}
+	})
 }
 
 var RandFromRange = randFromRange
 
 func TestRandFromRange(t *testing.T) {
+
+	r := rand.New(rand.NewSource(1))
+
 	rs := []intRange{}
 	r1 := intRange{
 		a: 1,
@@ -91,7 +119,7 @@ func TestRandFromRange(t *testing.T) {
 	rs = append(rs, r1)
 	rs = append(rs, r2)
 
-	if result := randFromRange(rs); (result != 1) && (result != 2) && (result != 10) && (result != 11) {
+	if result := randFromRange(rs, r); (result != 1) && (result != 2) && (result != 10) && (result != 11) {
 		t.Errorf("result:%v must 1 or 2", result)
 	}
 }
