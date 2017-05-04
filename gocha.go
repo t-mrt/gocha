@@ -8,15 +8,24 @@ import (
 
 type gocha struct {
 	prog *syntax.Prog
+	rand *rand.Rand
 }
 
 type Gocha interface {
 	Gen() string
 }
 
-func New(pattern string) (error, Gocha) {
+type option func(*gocha)
 
-	rand.Seed(time.Now().UnixNano())
+func Rand(r *rand.Rand) option {
+	return func(g *gocha) {
+		if r != nil {
+			g.rand = r
+		}
+	}
+}
+
+func New(pattern string, options ...func(*gocha)) (error, Gocha) {
 
 	exp, err := syntax.Parse(pattern, syntax.Perl)
 	if err != nil {
@@ -28,8 +37,15 @@ func New(pattern string) (error, Gocha) {
 		return err, nil
 	}
 
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	g := gocha{
 		prog: prog,
+		rand: r,
+	}
+
+	for _, option := range options {
+		option(&g)
 	}
 
 	return nil, g
@@ -55,7 +71,7 @@ func (g gocha) Gen() string {
 
 		case syntax.InstAlt:
 
-			if i := rand.Intn(2); i%2 == 1 {
+			if i := g.rand.Intn(2); i%2 == 1 {
 				pc = prog.Inst[pc].Out
 			} else {
 				pc = prog.Inst[pc].Arg
@@ -76,7 +92,7 @@ func (g gocha) Gen() string {
 				rs = append(rs, r)
 			}
 
-			c := rune(randFromRange(rs))
+			c := rune(randFromRange(rs, g.rand))
 			result = append(result, c)
 			pc = prog.Inst[pc].Out
 
@@ -93,7 +109,7 @@ func (g gocha) Gen() string {
 				rs = append(rs, r)
 			}
 
-			c := rune(randFromRange(rs))
+			c := rune(randFromRange(rs, g.rand))
 			result = append(result, c)
 			pc = prog.Inst[pc].Out
 
@@ -117,7 +133,7 @@ func (g gocha) Gen() string {
 				rs = append(rs, r)
 			}
 
-			c := rune(randFromRange(rs))
+			c := rune(randFromRange(rs, g.rand))
 
 			result = append(result, c)
 			pc = prog.Inst[pc].Out
@@ -135,19 +151,19 @@ type intRange struct {
 	b int
 }
 
-func randFromRange(rs []intRange) int {
+func randFromRange(rs []intRange, rnd *rand.Rand) int {
 
 	overallLen := 0
 
 	for _, r := range rs {
 		overallLen = overallLen + (r.b - r.a + 1)
 	}
-	index := rand.Intn(overallLen)
+	index := rnd.Intn(overallLen)
 	var result int
 	for _, r := range rs {
 
 		if (r.b - r.a) >= index {
-			result = rand.Intn(r.b-r.a+1) + r.a
+			result = rnd.Intn(r.b-r.a+1) + r.a
 			break
 		}
 
